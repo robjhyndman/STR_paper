@@ -1,0 +1,205 @@
+library(tidyverse)
+library(stR)
+library(fabletools)
+library(distributional)
+library(lubridate)
+
+# Create predictor dist object
+predictor_dist <- function(x, level) {
+    dist_percentile(
+      with(x, mapply(c, data, split(lower, row(lower)), split(upper, row(upper)), SIMPLIFY = FALSE)),
+      list(c(50, 50 + rep(c(-1, 1), each = length(level))*rep(level, 2)/2))
+    )
+  }
+
+
+## Supermarket data
+supermarket_nsw <- tsibbledata::aus_retail %>%
+  filter(
+    State == "New South Wales",
+    Industry == "Supermarket and grocery stores",
+    year(Month) >= 2000,
+    year(Month) <= 2009
+  ) %>%
+  pull(Turnover) %>%
+  ts(start=2000, frequency=12)
+
+## Supermarket STR decomposition
+
+decomp <- log(supermarket_nsw) %>%
+  AutoSTR(confidence=0.95, gapCV=12, reltol=0.00001)
+
+## Supermarket decomposition plot
+# plot(decomp)
+
+as_tsibble(decomp$input$data) %>%
+  rename(log_Data = value) %>%
+  mutate(
+    Remainder = decomp$output$random$data,
+    Trend = predictor_dist(decomp$output$predictors[[1]], 95),
+    Season = predictor_dist(decomp$output$predictors[[2]], 95)
+  ) %>%
+  as_dable(response = "log_Data", aliases = rlang::exprs(log_Data = Trend + Season + Remainder), method="STR") %>%
+  autoplot(size=0.5, fill='blue', level=95) +
+  theme(legend.position = "none") +
+  xlab("Month") +
+  theme_bw() +
+  theme(legend.position = "none")
+
+
+## Electricity data
+# Read and join all data sets
+elec <- read_csv("VIC.csv") %>%
+    mutate(Date = as.Date(Date, origin = "1899-12-30")) %>%
+    left_join(
+      read_csv("Melbourne.csv") %>%
+        mutate(Date = as.Date(Date, origin = "1899-12-30")),
+      by = c("Date", "Period")
+    ) %>%
+    left_join(
+      read_csv("VIC public holidays.csv", quote = "\"", col_names = "Date") %>%
+        mutate(
+          Date = lubridate::dmy(Date),
+          Holidays = TRUE
+        ),
+      by = c("Date")
+    ) %>%
+    replace_na(list(Holidays = FALSE)) %>%
+    rename(Demand = OperationalLessIndustrial) %>%
+    select(-Industrial) %>%
+    mutate(Time = seq_along(Date)) %>%
+    filter(Date >= "2000-01-11", Date <= "2000-05-04") %>%
+    # Add in day, week and working day info
+    mutate(
+      Weekday = factor(weekdays(Date, abbreviate = TRUE),
+        levels = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")),
+      DailySeasonality = Period - 1,
+      WeeklySeasonality = (as.integer(Weekday) - 1) * 48 + Period - 1,
+      WorkingDay = !Holidays & Weekday %in% c("Mon", "Tue", "Wed", "Thu", "Fri"),
+      WDSeasonality = (DailySeasonality + (!WorkingDay) * 100),
+      DateTime = as.POSIXct(paste(Date, "00:00:00")) + (Period-1)*30*60
+    )
+
+# Set up predictors for STR
+Predictors <- list()
+Predictors$Trend <- list(
+  name = "Trend",
+  data = rep(1, NROW(elec)),
+  times = elec$Time,
+  seasons = rep(1, NROW(elec)),
+  timeKnots = seq(from = first(elec$Time), to = last(elec$Time), length.out = 116),
+  seasonalStructure = list(segments = list(c(0, 1)), sKnots = list(c(1, 0))),
+  lambdas = c(1500, 0, 0)
+)
+Predictors$WSeason <- list(
+  name = "Weekly seas",
+  data = rep(1, NROW(elec)),
+  times = elec$Time,
+  seasons = elec$WeeklySeasonality,
+  timeKnots = seq(from = first(elec$Time), to = last(elec$Time), length.out = 12),
+  seasonalStructure = list(segments = list(c(0, 336)), sKnots = c(as.list(seq(4, 332, 4)), list(c(336, 0)))),
+  lambdas = c(0.8, 0.6, 100)
+)
+Predictors$WDSeason <- list(
+  name = "Daily seas",
+  data = rep(1, NROW(elec)),
+  times = elec$Time,
+  seasons = elec$WDSeasonality,
+  timeKnots = seq(from = first(elec$Time), to = last(elec$Time), length.out = 24),
+  seasonalStructure = list(
+    segments = list(c(0, 48), c(100, 148)),
+    sKnots = c(as.list(c(1:47, 101:147)), list(c(0, 48, 100, 148)))
+  ),
+  lambdas = c(0.003, 0, 240)
+)
+Predictors$TrendTempM <- list(
+  name = "Trend temp",
+  data = elec$Temp,
+  times = elec$Time,
+  seasons = rep(1, NROW(elec)),
+  timeKnots = Predictors$Trend$timeKnots,
+  seasonalStructure = Predictors$Trend$seasonalStructure,
+  lambdas = c(1e7, 0, 0)
+)
+Predictors$TrendTempM2 <- list(
+  name = "Trend temp^2",
+  data = elec$Temp^2,
+  times = elec$Time,
+  seasons = rep(1, NROW(elec)),
+  timeKnots = Predictors$Trend$timeKnots,
+  seasonalStructure = Predictors$Trend$seasonalStructure,
+  lambdas = c(1e7, 0, 0)
+)
+
+# STR decomposition of electricity data
+elec_str <- STR(
+  data = elec$Demand,
+  predictors = Predictors,
+  confidence = 0.95, gapCV = 48 * 7
+)
+
+# Find outliers
+elec <- elec %>%
+  mutate(res = elec_str$output$random$data)
+outliers <- elec %>%
+  filter(abs(res) >= sort(abs(elec$res))[NROW(elec) - 10 + 1])
+
+
+## STR decomposition of electricity data
+
+elec_dbl <- elec %>%
+  as_tsibble(index=DateTime) %>%
+  mutate(
+    Remainder = elec_str$output$random$data,
+    Trend = predictor_dist(elec_str$output$predictors[[1]], 95),
+    Weekly = predictor_dist(elec_str$output$predictors[[2]], 95),
+    Daily = predictor_dist(elec_str$output$predictors[[3]], 95),
+    Temp = predictor_dist(elec_str$output$predictors[[4]], 95),
+    Tempsq = predictor_dist(elec_str$output$predictors[[5]], 95),
+  ) %>%
+  select(DateTime, Demand, Trend, Weekly, Daily, Temp, Tempsq, Remainder) %>%
+  as_dable(response = "Demand",
+           aliases = rlang::exprs(Demand = Trend + Weekly + Daily + Temp + Tempsq + Remainder),
+           method = "STR")
+
+p <- elec_dbl %>%
+  autoplot(size = 0.5, fill='blue', level=95) +
+  xlab("Month") +
+  geom_vline(data=outliers, aes(xintercept = DateTime), col='gray') +
+  ggplot2::theme_bw() + theme(legend.position = "none")
+# Put vline behind data
+p$layers <- p$layers[c(1,4,2,3)]
+p
+
+
+## Display table of outliers
+outliers %>%
+  mutate(
+    Hour1 = hour(DateTime),
+    Hour2 = hour(DateTime+1800),
+    Minute1 = minute(DateTime) %>% as.character(),
+    Minute2 = minute(DateTime+1800) %>% as.character(),
+    Minute1 = if_else(Minute1=="0","00",Minute1),
+    Minute2 = if_else(Minute2=="0","00",Minute2),
+    Time = paste0(Hour1,":",Minute1," -- ",Hour2,":",Minute2),
+    Weekday = case_when(
+      Weekday == "Thu" ~ "Thursday",
+      Weekday == "Fri" ~ "Friday"
+    ),
+    Date = paste(day(Date),month(Date, label=TRUE, abbr=FALSE),year(Date)),
+  ) %>%
+  select(Date,Weekday,Time,res) %>%
+  knitr::kable(col.names = c("Date","Day of week","Time period","Residual"),
+               digits=1, align="rlcr", booktabs=TRUE,
+               caption = "The ten residuals that are largest in absolute value after an STR decomposition."
+  )
+
+## Temperature plot highlighting outliers
+elec %>%
+  filter(Date >= "2000-02-01", Date <= "2000-02-11") %>%
+  ggplot(aes(x=DateTime, y=Temp)) +
+  geom_line() +
+  geom_vline(data=outliers, aes(xintercept = DateTime), col='red') +
+  labs(y="Temperature", x="Date") +
+  ggplot2::theme_bw()
+
