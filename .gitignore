@@ -12,3 +12,4 @@
 *.run.xml
 *_cache
 *_files
+*.rds
