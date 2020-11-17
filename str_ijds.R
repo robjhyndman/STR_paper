@@ -49,15 +49,15 @@ as_tsibble(decomp$input$data) %>%
 
 ## Electricity data
 # Read and join all data sets
-elec <- read_csv("VIC.csv") %>%
+elec <- read_csv("data/VIC.csv") %>%
     mutate(Date = as.Date(Date, origin = "1899-12-30")) %>%
     left_join(
-      read_csv("Melbourne.csv") %>%
+      read_csv("data/Melbourne.csv") %>%
         mutate(Date = as.Date(Date, origin = "1899-12-30")),
       by = c("Date", "Period")
     ) %>%
     left_join(
-      read_csv("VIC public holidays.csv", quote = "\"", col_names = "Date") %>%
+      read_csv("data/VIC public holidays.csv", quote = "\"", col_names = "Date") %>%
         mutate(
           Date = lubridate::dmy(Date),
           Holidays = TRUE
