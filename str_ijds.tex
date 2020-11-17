@@ -813,7 +813,9 @@ This article has introduced a new flexible approach to seasonal-trend decomposit
 The main novelties of the STR approach are as follows. First, the seasonal components are represented as two dimensional structures of optionally complex topology. This is a completely new way of viewing seasonal components in the field of seasonal-trend decomposition. Second, the influence of covariates is allowed to be time-varying and can be seasonal, cyclic, etc. In all cases, the seasonal, cyclic or other components can have complex constraints which are difficult (if not impossible) to represent using other methods. Third, the approach proposes a regression perspective on time series decomposition, rather than the filtering or stochastic process approach which underpins most other methods. Fourth, beyond the methodological contributions mentioned above, the main theoretical contribution of the new approach is that it allows us to build a bridge between some stochastic processes and linear regression problems, which can give new mathematical interpretations and new computational methods for solving stochastic process problems. Finally, the new approach provides a unified framework for handling a very wide variety of seasonal-trend decomposition problems, which is easy to adapt in order to take into account further time series features.
 
 An R package, \textbf{stR} \autocite{stR}, implementing our model is available on CRAN.
-The package also contains a vignette, which describes various practical aspects of the implementation in detail. The calculations and the plots presented in this article can be reproduced using the code available from \url{https://bit.ly/str_ijds}.
+The package also contains a vignette, which describes various practical aspects of the implementation in detail.
+
+This paper was produced using Rmarkdown \autocite{rmarkdown}. The source files to reproduce the paper, including all the examples, are available from \href{https://github.com/robjhyndman/STR_paper}{\texttt{github.com/robjhyndman/STR\_paper}}.
 
 \newpage
 
