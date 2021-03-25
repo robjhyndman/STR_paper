@@ -1,0 +1,53 @@
+---
+title: Response to reviewers
+author: "STR: Seasonal-Trend decomposition using Regression"
+bibliography: strrefs.bib
+output: MonashEBSTemplates::memo
+header-includes:
+  - \usepackage{color}
+  - \renewenvironment{quote}{\list{}{\rightmargin\leftmargin}\item\relax\color[RGB]{0,150,0}}{\endlist}
+
+---
+
+> We thank the reviewers for their careful reading of our paper; their comments have led to several improvements and corrections. Reviewer comments are in black, our responses are in green.
+
+# Senior Editor
+
+I join the AE in thanking the authors for their submission. The manuscript presents an innovative approach to an important problem in an approachable way that I expect to be broadly interesting -- and impactful -- to both researchers and practitioners in the data science community. This definitely fits the template for inclusion in an early volume of IJDS.
+
+We conclude that the apparent promise of the proposed algorithm has not been computationally demonstrated in a thorough enough manner to warrant publication. The specific suggestions of the reviewer have been clearly summarized by the AE, and at least the first three categories outlined by the AE should be required for publication. This will necessitate some significant computational experiments and careful analysis of results. Still, since the conceptual case for the method has been sufficiently made, and the description (and code) are sufficient for reproducibility, the resulting recommendation is "minor revision."
+
+We look forward to reviewing a revised version of the manuscript.
+
+# Associate Editor
+
+I would like to thank the authors for having the opportunity to review their innovative work on decomposing complex time series data. The paper has been reviewed by one referee who has made valuable suggestions. I will, in what follows, summarize some of these suggestions:
+
+- “Does it work?” When we read a new research contribution, we often ask ourselves “does this method work?” That is, we ask ourselves that, while the authors propose a new method to recover underlying or hidden time series components, does the method really uncover all of the components hidden in the data? In this paper, the authors provide some empirical examples, but they do not really answer the question of whether all the time series components, of e.g. the electricity demand in Victoria, have been truly recovered. What if there are additional components that are hiding inside the data (which the method could not detect)? In order to address this question, the referee suggests the use of simulations. Simulations are a great tool to investigate what-if questions (e.g. what if we added an hourly or minutely component to the data? Would the method then still work? What if we added more noise to the data? Or unobservable factors?) I would strongly recommend the authors consider the referee’s suggestion and see if a simulation experiment could be added to the paper.
+
+> As suggested, we have added some simulation experiments to demonstrate our proposed method. These appear in Section ?? and in the appendix.
+
+- “Does it work better?” Another question we often ask ourselves is the “so what” question. Or more specifically, we ask if the proposed method, while elegant and convincing, really adds any practical value. In other words, does it work better than any of the existing methods? In the empirical examples, while the authors show the performance of STR, they do not show us how poorly (or how competitively) other benchmark methods perform. The authors argue that none of the existing methods satisfy all of the requirements of STR; however, I agree with the referee that it would add tremendous value if some benchmarking could be added to the empirical applications. That would help the reader better understand how much better STR performs (and when it performs better).
+
+> We have now included some comparison methods in the simulations and in the appendix.
+
+- Special cases: It appears that a very special case of the model would be a linear regression model with a linear trend and seasonal dummy variables (plus covariates). I think it would have tremendous value for the reader if the authors could discuss special cases of their model and how they relate to the standard statistics and economics tool sets.
+
+> Yes, that is correct. We have added a paragraph after the introduction of our model describing some special cases.
+
+- Applications within data science: One way to look at this method of time series decomposition is in terms of feature engineering. The authors’ model provides a way for the data science researcher to identify new features in the data (such as weekly or daily patterns). Could these features then be used inside other data science methods (e.g. could the uncovered weekly or daily pattern be used as an input for a classification or forecasting model)? I think it would provide tremendous value for the data science community if the authors could discuss the application of their model/method within the wider context of data science tasks.
+
+# Reviewer
+
+
+General Assessment: The paper is very well written, well organized, and easy to follow. I believe the proposed method to be of interest to the target audience of the IJDS. However, I think the paper presents a few loose ends. Let me elaborate with a bullet-point style to facilitate the authors' evaluation.
+
+1) Identification: I don't think the authors are convincing the reader whether the proposed method can recover unbiased parameters. I suggest the authors include extensive simulation results, either in the main text or in a supplementary appendix. Using simulations would also help assess what kind of "richness" in the data is needed to correctly estimate the model; this is an essential requirement for a data science paper.
+
+2) Benchmarking: the authors should include potential alternative (traditional STR method) or multiscale/wavelet alike (See Zhang et al. 2017 for a quick reference and potential suggestion) method and compare the predictive performance across them.
+
+3) I suggest the authors consider an additional dataset that could make the paper more appealing to a vaster audience. As a suggestion, the authors could consider time series extracted from Google Trends about Covid (https://trends.google.com/trends/story/US_cu_4Rjdh3ABAABMHM_en)
+
+4) I enjoyed reading the extended yet brief discussion in Section 4. I think that 4.2 could be implemented in the main paper to make a more substantial methodological contribution. It would be indeed intriguing to see how the bias/variance trade-off obtained using different regularizers (or a combination thereof) can impact the results' quality.
+
+Overall, as remarked above, it is quite an enjoyable paper with room to improve. I trust the authors find my comment useful under any outcome.
