@@ -13,3 +13,4 @@
 *_cache
 *_files
 *.rds
+.Rproj.user
