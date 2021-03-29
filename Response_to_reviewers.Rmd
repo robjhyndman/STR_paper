@@ -25,17 +25,19 @@ I would like to thank the authors for having the opportunity to review their inn
 
 - “Does it work?” When we read a new research contribution, we often ask ourselves “does this method work?” That is, we ask ourselves that, while the authors propose a new method to recover underlying or hidden time series components, does the method really uncover all of the components hidden in the data? In this paper, the authors provide some empirical examples, but they do not really answer the question of whether all the time series components, of e.g. the electricity demand in Victoria, have been truly recovered. What if there are additional components that are hiding inside the data (which the method could not detect)? In order to address this question, the referee suggests the use of simulations. Simulations are a great tool to investigate what-if questions (e.g. what if we added an hourly or minutely component to the data? Would the method then still work? What if we added more noise to the data? Or unobservable factors?) I would strongly recommend the authors consider the referee’s suggestion and see if a simulation experiment could be added to the paper.
 
-> As suggested, we have added some simulation experiments to demonstrate our proposed method. These appear in Section ?? and in the appendix.
+> As suggested, we have added some simulation experiments to demonstrate our proposed method. These appear in Section 3.
 
 - “Does it work better?” Another question we often ask ourselves is the “so what” question. Or more specifically, we ask if the proposed method, while elegant and convincing, really adds any practical value. In other words, does it work better than any of the existing methods? In the empirical examples, while the authors show the performance of STR, they do not show us how poorly (or how competitively) other benchmark methods perform. The authors argue that none of the existing methods satisfy all of the requirements of STR; however, I agree with the referee that it would add tremendous value if some benchmarking could be added to the empirical applications. That would help the reader better understand how much better STR performs (and when it performs better).
 
-> We have now included some comparison methods in the simulations and in the appendix.
+> We have now included some comparison methods in the simulations, demonstrating that our approach consistently and significantly outperforms competitor methods. We have also included some more details the first real data example in the appendix.
 
 - Special cases: It appears that a very special case of the model would be a linear regression model with a linear trend and seasonal dummy variables (plus covariates). I think it would have tremendous value for the reader if the authors could discuss special cases of their model and how they relate to the standard statistics and economics tool sets.
 
-> Yes, that is correct. We have added a paragraph after the introduction of our model describing some special cases.
+> Yes, that is correct. We have added two paragraphs describing some special cases --- one at the end of Section 2.1 describing a linear trend, and one at the end of Section 2.2 describing periodic seasonality.
 
 - Applications within data science: One way to look at this method of time series decomposition is in terms of feature engineering. The authors’ model provides a way for the data science researcher to identify new features in the data (such as weekly or daily patterns). Could these features then be used inside other data science methods (e.g. could the uncovered weekly or daily pattern be used as an input for a classification or forecasting model)? I think it would provide tremendous value for the data science community if the authors could discuss the application of their model/method within the wider context of data science tasks.
+
+> We have now added this use-case in the discussion section.
 
 # Reviewer
 
@@ -44,10 +46,18 @@ General Assessment: The paper is very well written, well organized, and easy to 
 
 1) Identification: I don't think the authors are convincing the reader whether the proposed method can recover unbiased parameters. I suggest the authors include extensive simulation results, either in the main text or in a supplementary appendix. Using simulations would also help assess what kind of "richness" in the data is needed to correctly estimate the model; this is an essential requirement for a data science paper.
 
+> We have now added simulations in Section 3 showing that our method consistently and significantly outperforms the only competitors available for multiple-seasonal decomposition.
+
 2) Benchmarking: the authors should include potential alternative (traditional STR method) or multiscale/wavelet alike (See Zhang et al. 2017 for a quick reference and potential suggestion) method and compare the predictive performance across them.
+
+> We have now compared our approach against STL and TBATS in the simulations, and against STL, TBATS and X-13-ARIMA-SEATS in the appendix. It would be difficult to compare against the approach proposed by Zhang et al (2017) as their decomposition does not contain explicit trend or remainder terms, and the multiple seasonal terms do not match those in other formulations of time series decomposition. Further, the authors do not provide any open-source implementation of their approach.
 
 3) I suggest the authors consider an additional dataset that could make the paper more appealing to a vaster audience. As a suggestion, the authors could consider time series extracted from Google Trends about Covid (https://trends.google.com/trends/story/US_cu_4Rjdh3ABAABMHM_en)
 
+> We have included two real examples, one with monthly data of the kind that official statistics agencies need to deal with, and one with sub-daily data showing the richness of our method in an application that existing methods are incapable of handling. We do not think that a further example will make the paper any more appealing. Data from Google Trends about Covid would certainly be a plausible application, but it would not show anything that we have not already demonstrated.
+
 4) I enjoyed reading the extended yet brief discussion in Section 4. I think that 4.2 could be implemented in the main paper to make a more substantial methodological contribution. It would be indeed intriguing to see how the bias/variance trade-off obtained using different regularizers (or a combination thereof) can impact the results' quality.
+
+> An earlier version of the paper did contain some additional material on robust regularization, but it led to the paper being too long for the journal, and we feel that there is enough methodological innovation without adding alternative regularization as well.
 
 Overall, as remarked above, it is quite an enjoyable paper with room to improve. I trust the authors find my comment useful under any outcome.
