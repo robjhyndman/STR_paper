@@ -1,5 +1,3 @@
-library(tidyverse)
-
 get_trend <- function(l, type=c("deterministic","stochastic")) {
   type = match.arg(type)
   if(type=="stochastic") 
