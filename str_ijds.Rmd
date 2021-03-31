@@ -167,9 +167,8 @@ where $f_{tt,i}(\sigma_i)$ is a normalizing function.
 
 Smoothness in the season and time-season directions are defined analogously by restricting the derivatives $\frac{\partial^2}{\partial s^2}$ and $\frac{\partial^2}{\partial s \partial t}$. It should be noted that the matrices $\bm{D}_{st}$ and $\bm{D}_{ss}$ take the cylinder topology into account when calculating proper "circular" differences.
 
-Again, by setting the smoothing parameters to zero, some simple special cases are obtained. 
-
-Setting $\sigma_L$ to zero makes trend linear (as it makes second derivatives equal to zero). On the other hand, setting the variance of the seasonal component in the time-seasonal direction to zero cases the seasonal component to be periodic. By setting both variances to zero we effectively force our model to have a linear trend with seasonal dummies.
+Again, by setting the smoothing parameters to zero, some simple special cases are obtained.
+Setting $\sigma_L$ to zero makes trend linear (as it makes trend's second derivatives equal to zero). On the other hand, setting the variance of the seasonal component in the time-seasonal direction to zero causes the seasonal component to be periodic. By setting both variances to zero we effectively force our model to have a linear trend with seasonal dummies.
 Although, setting the variance of the second derivatives of the seasonal component in the time direction to zero alone makes changes in the seasonal component linear over time, but does not preclude the seasonal pattern from changing.
 
 
