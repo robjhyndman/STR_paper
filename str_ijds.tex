@@ -456,7 +456,9 @@ where \(f_{tt,i}(\sigma_i)\) is a normalizing function.
 
 Smoothness in the season and time-season directions are defined analogously by restricting the derivatives \(\frac{\partial^2}{\partial s^2}\) and \(\frac{\partial^2}{\partial s \partial t}\). It should be noted that the matrices \(\bm{D}_{st}\) and \(\bm{D}_{ss}\) take the cylinder topology into account when calculating proper ``circular'' differences.
 
-Again, by setting the smoothing parameters to zero, some simple special cases are obtained. Setting \(\sigma_i\) to zero eliminates the \(i\)th seasonal component (as it will be equal to zero); setting the variance in the time direction to zero causes the seasonal component to be periodic; setting the variance in the time-season direction to zero causes ????.
+Again, by setting the smoothing parameters to zero, some simple special cases are obtained.
+Setting \(\sigma_L\) to zero makes trend linear (as it makes trend's second derivatives equal to zero). On the other hand, setting the variance of the seasonal component in the time-seasonal direction to zero causes the seasonal component to be periodic. By setting both variances to zero we effectively force our model to have a linear trend with seasonal dummies.
+Although, setting the variance of the second derivatives of the seasonal component in the time direction to zero alone makes changes in the seasonal component linear over time, but does not preclude the seasonal pattern from changing.
 
 \hypertarget{sec:complex-topology}{%
 \subsection{STR with complex seasonal topology}\label{sec:complex-topology}}
@@ -699,31 +701,31 @@ $\gamma$ & Method & Trend RMSE & Weekly RMSE & Yearly RMSE & Remainder RMSE\\
 \midrule
 \addlinespace[0.3em]
 \multicolumn{6}{l}{\textbf{Stochastic DGP}}\\
-\hspace{1em}0.2 & STL & \textbf{0.0735} & \textbf{0.0564} & \textbf{0.1272} & \textbf{0.1495}\\
-\hspace{1em}0.2 & TBATS & \textbf{0.1686} & \textbf{0.0169} & \textbf{0.1598} & \textbf{0.0579}\\
-\hspace{1em}0.2 & STR & 0.0176 & 0.0150 & 0.0510 & 0.0544\\
+\hspace{1em}0.2 & STL & \textbf{0.0808} & \textbf{0.0564} & \textbf{0.1267} & \textbf{0.1525}\\
+\hspace{1em}0.2 & TBATS & \textbf{0.1849} & \textbf{0.0173} & \textbf{0.1785} & \textbf{0.0582}\\
+\hspace{1em}0.2 & STR & 0.0183 & 0.0149 & 0.0475 & 0.0515\\
 \midrule
-\hspace{1em}0.4 & STL & \textbf{0.0798} & \textbf{0.1149} & \textbf{0.2295} & \textbf{0.2653}\\
-\hspace{1em}0.4 & TBATS & \textbf{0.3172} & \textbf{0.0344} & \textbf{0.3044} & \textbf{0.1182}\\
-\hspace{1em}0.4 & STR & 0.0315 & 0.0306 & 0.0840 & 0.0929\\
+\hspace{1em}0.4 & STL & \textbf{0.0798} & \textbf{0.1148} & \textbf{0.2299} & \textbf{0.2659}\\
+\hspace{1em}0.4 & TBATS & \textbf{0.3435} & \textbf{0.0344} & \textbf{0.3310} & \textbf{0.1227}\\
+\hspace{1em}0.4 & STR & 0.0320 & 0.0301 & 0.0778 & 0.0876\\
 \midrule
-\hspace{1em}0.6 & STL & \textbf{0.0872} & \textbf{0.1713} & \textbf{0.3385} & \textbf{0.3887}\\
-\hspace{1em}0.6 & TBATS & \textbf{0.5194} & \textbf{0.0516} & \textbf{0.4929} & \textbf{0.1852}\\
-\hspace{1em}0.6 & STR & 0.0505 & 0.0447 & 0.1347 & 0.1470\\
+\hspace{1em}0.6 & STL & \textbf{0.0846} & \textbf{0.1717} & \textbf{0.3388} & \textbf{0.3884}\\
+\hspace{1em}0.6 & TBATS & \textbf{0.5107} & \textbf{0.0508} & \textbf{0.4983} & \textbf{0.1648}\\
+\hspace{1em}0.6 & STR & 0.0523 & 0.0438 & 0.1136 & 0.1273\\
 \midrule
 \addlinespace[0.3em]
 \multicolumn{6}{l}{\textbf{Deterministic GDP}}\\
-\hspace{1em}0.2 & STL & \textbf{0.1279} & \textbf{0.0576} & \textbf{0.1387} & \textbf{0.1760}\\
-\hspace{1em}0.2 & TBATS & \textbf{0.1849} & \textbf{0.0170} & \textbf{0.1803} & \textbf{0.0675}\\
-\hspace{1em}0.2 & STR & 0.0552 & 0.0143 & 0.0700 & 0.0535\\
+\hspace{1em}0.2 & STL & \textbf{0.1272} & \textbf{0.0575} & \textbf{0.1402} & \textbf{0.1748}\\
+\hspace{1em}0.2 & TBATS & \textbf{0.2304} & \textbf{0.0166} & \textbf{0.2259} & \textbf{0.0803}\\
+\hspace{1em}0.2 & STR & 0.0851 & 0.0147 & 0.1000 & 0.0607\\
 \midrule
-\hspace{1em}0.4 & STL & \textbf{0.1129} & \textbf{0.1147} & \textbf{0.2366} & \textbf{0.2763}\\
-\hspace{1em}0.4 & TBATS & \textbf{0.3232} & \textbf{0.0338} & \textbf{0.3146} & \textbf{0.1157}\\
-\hspace{1em}0.4 & STR & 0.0541 & 0.0311 & 0.0930 & 0.0945\\
+\hspace{1em}0.4 & STL & \textbf{0.1135} & \textbf{0.1147} & \textbf{0.2374} & \textbf{0.2757}\\
+\hspace{1em}0.4 & TBATS & \textbf{0.3393} & \textbf{0.0340} & \textbf{0.3294} & \textbf{0.1153}\\
+\hspace{1em}0.4 & STR & 0.0584 & 0.0306 & 0.0937 & 0.0929\\
 \midrule
-\hspace{1em}0.6 & STL & \textbf{0.1362} & \textbf{0.1716} & \textbf{0.3428} & \textbf{0.3995}\\
-\hspace{1em}0.6 & TBATS & \textbf{0.4834} & \textbf{0.0509} & \textbf{0.4698} & \textbf{0.1692}\\
-\hspace{1em}0.6 & STR & 0.0793 & 0.0426 & 0.1304 & 0.1329\\
+\hspace{1em}0.6 & STL & \textbf{0.1439} & \textbf{0.1714} & \textbf{0.3427} & \textbf{0.4018}\\
+\hspace{1em}0.6 & TBATS & \textbf{0.5444} & \textbf{0.0509} & \textbf{0.5298} & \textbf{0.1709}\\
+\hspace{1em}0.6 & STR & 0.0757 & 0.0436 & 0.1691 & 0.1709\\
 \bottomrule
 \end{tabular}
 \end{table}
