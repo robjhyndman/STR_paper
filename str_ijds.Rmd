@@ -38,7 +38,7 @@ header-includes:
   - \renewcommand{\mod}{\operatorname{mod}}
   - \usepackage[section]{placeins}
   - \makeatletter\let\ftype@table\ftype@figure\makeatother
-include-after: 
+include-after:
   - \includepdf[pages=-]{str_ijds_appendix.pdf}
 ---
 
@@ -139,7 +139,7 @@ $\bm{\ell} = \langle T_{t} \rangle_{t=1}^{n}$ is an $n$-vector of the trend comp
 $\bm{D}_\ell$ is the $(n-2) \times n$ difference operator matrix such that $\bm{D}_\ell\bm{\ell} = \langle\Delta^2 T_{t}\rangle_{t=3}^n$;
 and $f_L(\sigma_L)$ is a normalizing function.
 
-Note that the model subsumes the case of a linear trend, obtained when $\sigma_L^2=0$.
+Note that the model subsumes the case of a linear trend, obtained when $\sigma_L=0$ (making the trend's second derivatives equal to zero).
 
 ## Smooth two-dimensional seasonal surfaces
 
@@ -167,10 +167,7 @@ where $f_{tt,i}(\sigma_i)$ is a normalizing function.
 
 Smoothness in the season and time-season directions are defined analogously by restricting the derivatives $\frac{\partial^2}{\partial s^2}$ and $\frac{\partial^2}{\partial s \partial t}$. It should be noted that the matrices $\bm{D}_{st}$ and $\bm{D}_{ss}$ take the cylinder topology into account when calculating proper "circular" differences.
 
-Again, by setting the smoothing parameters to zero, some simple special cases are obtained.
-Setting $\sigma_L$ to zero makes trend linear (as it makes trend's second derivatives equal to zero). On the other hand, setting the variance of the seasonal component in the time-seasonal direction to zero causes the seasonal component to be periodic. By setting both variances to zero we effectively force our model to have a linear trend with seasonal dummies.
-Although, setting the variance of the second derivatives of the seasonal component in the time direction to zero alone makes changes in the seasonal component linear over time, but does not preclude the seasonal pattern from changing.
-
+Again, by setting the smoothing parameters to zero, some simple special cases are obtained. Setting the variance of the seasonal component in the time-seasonal direction to zero causes the seasonal component to be periodic. By setting both trend and time-seasonal variances to zero we effectively force our model to have a linear trend with seasonal dummies. Setting the variance of the second derivatives of the seasonal component in the time direction to zero alone makes changes in the seasonal component linear over time, but does not preclude the seasonal pattern from changing.
 
 ## STR with complex seasonal topology {#sec:complex-topology}
 
@@ -368,19 +365,19 @@ Our simulated daily data consists of four components:
   \label{STR:many_parts2}
   y_{t} = T_{t} + \alpha S^{W}_{t} + \beta S^{Y}_{t} + \gamma R_{t} , \quad t=1,\dots,n,
 \end{equation}
-where $T_{t}$ is a trend, $S^{W}_{t}$ is a weekly seasonal component, $S^{Y}_{t}$ is a yearly seasonal component, $R_{t}$ is the remainder, and $\alpha$, $\beta$, and $\gamma$ are parameters which control the contribution of the components to $y_{t}$. 
+where $T_{t}$ is a trend, $S^{W}_{t}$ is a weekly seasonal component, $S^{Y}_{t}$ is a yearly seasonal component, $R_{t}$ is the remainder, and $\alpha$, $\beta$, and $\gamma$ are parameters which control the contribution of the components to $y_{t}$.
 
-We use two data generating processes (DGPs) to simulate data. For the first DGP, we use a quadratic trend function with random coefficients, such that $T_t^* = N_1(t + n/2(N_2-1))^2$ where $N_1$ and $N_2$ are independent N(0,1) random variables. Then $T_t^*$ is normalized to give $T_t$ with mean zero and unit variance. The seasonal components consist of five pairs of Fourier terms with random N(0,1) coefficients, which are then also normalized. Because this DGP has deterministic components, we refer to it as the "Deterministic" GDP. 
+We use two data generating processes (DGPs) to simulate data. For the first DGP, we use a quadratic trend function with random coefficients, such that $T_t^* = N_1(t + n/2(N_2-1))^2$ where $N_1$ and $N_2$ are independent N(0,1) random variables. Then $T_t^*$ is normalized to give $T_t$ with mean zero and unit variance. The seasonal components consist of five pairs of Fourier terms with random N(0,1) coefficients, which are then also normalized. Because this DGP has deterministic components, we refer to it as the "Deterministic" GDP.
 
-For the second "Stochastic" DGP, the trend is given by an ARIMA(0,2,0) model with standard normal errors, which is then normalized. The seasonal components are also smooth and obtained using a similar process constrained to be periodic. Specifically, for each seasonal component we start with a vector of iid N(0,1) values of the length of one season, normalized and replicated to be of length $n$. This is then integrated and normalized twice to make it smooth. So each seasonal component is as smooth as the trend, is centred on zero and is periodic. 
+For the second "Stochastic" DGP, the trend is given by an ARIMA(0,2,0) model with standard normal errors, which is then normalized. The seasonal components are also smooth and obtained using a similar process constrained to be periodic. Specifically, for each seasonal component we start with a vector of iid N(0,1) values of the length of one season, normalized and replicated to be of length $n$. This is then integrated and normalized twice to make it smooth. So each seasonal component is as smooth as the trend, is centred on zero and is periodic.
 
 Figure \@ref(fig:examples) shows examples of simulated time series from each of the two DGPs with $\alpha=\beta=1$ and $\gamma=0.25$. We generated 1096 days in each case (one day more than three non-leap years of daily data).
 
 ```{r examples, fig.cap="Examples of time series generated by the two DGPs.", fig.height=3.5}
 bind_rows(
-  get_msts_data(type = "stochastic", l = 1096, gamma=.4) %>% 
+  get_msts_data(type = "stochastic", l = 1096, gamma=.4) %>%
     mutate(type = "Stochastic", day = row_number()),
-  get_msts_data(type = "deterministic", l = 1096, gamma=.4) %>% 
+  get_msts_data(type = "deterministic", l = 1096, gamma=.4) %>%
      mutate(type = "Deterministic", day = row_number())
 ) %>%
   ggplot(aes(x = day, y = data, group = type)) +
@@ -423,7 +420,7 @@ pvalues <- bind_rows(
     get_pvalues(errors, type="deterministic", gamma=0.6)
   ) %>%
   mutate(method = str_remove(term,"method")) %>%
-  select(-term) 
+  select(-term)
 ```
 
 ```{r cbetable}
