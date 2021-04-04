@@ -10,6 +10,7 @@
 \graphicspath{{figs/}}
 \def\addlinespace{}
 \usepackage{amsmath,bm,hyperref,url,booktabs}
+\usepackage{pdfpages}
 \setlength{\arraycolsep}{3pt}
 \setcounter{MaxMatrixCols}{20}
 \renewcommand{\vec}{\operatorname{vec}}
@@ -87,7 +88,7 @@
 %   \EMAIL field can be repeated if more than one author
 \ARTICLEAUTHORS{%
 \AUTHOR{Alexander Dokumentov}
-\AFF{Growing Data, Australia} %, \URL{}}
+\AFF{Let's Forecast, Australia} %, \URL{}}
 \AUTHOR{Rob J Hyndman}
 \AFF{Department of Econometrics \& Business Statistics, Monash University, Clayton VIC 3800, Australia, \EMAIL{Rob.Hyndman@monash.edu}}
 % Enter all authors
@@ -104,7 +105,7 @@ Our model is implemented in the R package \emph{stR}, so can be applied by anyon
 %  existence of optimal policies; semi-Markov decision process; cyclic schedule}
 
 % Fill in data. If unknown, outcomment the field
-\KEYWORDS{time series decomposition, seasonal data, Tikhonov regularisation, ridge regression, LASSO, STL, TBATS, X-12-ARIMA, BSM}
+\KEYWORDS{time series decomposition, seasonal data, Tikhonov regularisation, ridge regression, LASSO, STL, TBATS, X-12-ARIMA, X-13-ARIMA-SEATS, BSM}
 
 \maketitle
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -123,7 +124,8 @@ Our model is implemented in the R package \emph{stR}, so can be applied by anyon
 
 % Text of your paper here
 
-\section{Time series decomposition}\label{time-series-decomposition}
+\hypertarget{time-series-decomposition}{%
+\section{Time series decomposition}\label{time-series-decomposition}}
 
 Decomposition of univariate time series data is a common tool used by government and business in order to understand time series variation. A time series decomposition method separates a time series into components, typically trend, seasonality and remainder. These can be used in many ways for decision-making.
 
@@ -145,11 +147,11 @@ For example, electricity companies measure hourly electricity demand patterns fo
 \hypertarget{a-brief-history-of-time-series-decomposition}{%
 \subsection{A brief history of time series decomposition}\label{a-brief-history-of-time-series-decomposition}}
 
-The first attempts to decompose time series into various components can be dated to the 19th century, when \citet{Poynting1884} proposed price averaging as a tool for eliminating trend and seasonal fluctuations. Later, his approach was extended by \citet{hooker1901suspension}, \citet{spencer1904graduation} and \citet{anderson1914nochmals}. Further research in this direction included that by \citet{copeland1915statistical}, who was the first to attempt to extract the seasonal component, until \citet{macaulay1930smooth} proposed a method which gradually became ``classical''. The work of Macaulay led to the Census II method \citep{shiskin1957electronic} which became popular amongst national statistics offices. The Census II method has continued to evolve, with additional features including robustness, calendar effects, covariates, ARIMA extensions, and extensive diagnostics. Widely used versions of this approach have been X-11 \citep{shishkin1967x}, X-11-ARIMA \citep{dagum1988x11arima,ladiray2001seasonal}, X-12-ARIMA \citep{findley1998new} and X-13-ARIMA-SEATS \citep{findley2005some}.
+The first attempts to decompose time series into various components can be dated to the 19th century, when \citet{Poynting1884} proposed price averaging as a tool for eliminating trend and seasonal fluctuations. Later, his approach was extended by \citet{hooker1901suspension}, \citet{spencer1904graduation} and \citet{anderson1914nochmals}. Further research in this direction included that by \citet{copeland1915statistical}, who was the first to attempt to extract the seasonal component, until \citet{macaulay1930smooth} proposed a method which gradually became ``classical''. The work of Macaulay led to the Census II method \citep{shiskin1957electronic} which became popular amongst national statistics offices. The Census II method has continued to evolve, with additional features including robustness, calendar effects, covariates, ARIMA extensions, and extensive diagnostics. Widely used versions of this approach have been X-11 \citep{shishkin1967x}, X-11-ARIMA \citep{dagum1988x11arima,ladiray2001seasonal}, X-12-ARIMA \citep{findley1998new} and X-13-ARIMA-SEATS \citep{findley2005some,Dagum2016}.
 
 A different approach was followed by \citet{cleveland1990stl}, who developed STL (Seasonal-Trend decomposition using Loess), which has come to be widely used outside the national statistics agencies, partly because of its availability in R \citep{R}. This method uses iterative Loess smoothing to obtain an estimate of the trend, and then Loess smoothing again to extract a changing additive seasonal component.
 
-Several model-based methods for seasonal decomposition have been developed, including the TRAMO/SEATS procedure which was developed at the Bank of Spain \citep{Gomez2001}, the TBATS model of \citet{de2011forecasting}, and various structural time series model approaches \citep{harvey1990forecasting,Commandeur2011}. One big advantage of using a model for seasonal decomposition and adjustment is that it provides a natural way to compute confidence and prediction intervals.
+Several model-based methods for seasonal decomposition have been developed, including the TRAMO/SEATS procedure which was developed at the Bank of Spain \citep{Gomez2001}, the TBATS model of \citet{delivera2011forecasting}, and various structural time series model approaches \citep{harvey1990forecasting,Commandeur2011}. One big advantage of using a model for seasonal decomposition and adjustment is that it provides a natural way to compute confidence and prediction intervals.
 
 Despite this long history, and the availability of many algorithms and models for time series decomposition, there are many time series characteristics that are not addressed in these approaches. We seek a time series decomposition method with the following attributes:
 
@@ -219,6 +221,8 @@ where
 \(\bm{D}_\ell\) is the \((n-2) \times n\) difference operator matrix such that \(\bm{D}_\ell\bm{\ell} = \langle\Delta^2 T_{t}\rangle_{t=3}^n\);
 and \(f_L(\sigma_L)\) is a normalizing function.
 
+Note that the model subsumes the case of a linear trend, obtained when \(\sigma_L=0\) (making the trend's second derivatives equal to zero).
+
 \hypertarget{smooth-two-dimensional-seasonal-surfaces}{%
 \subsection{Smooth two-dimensional seasonal surfaces}\label{smooth-two-dimensional-seasonal-surfaces}}
 
@@ -246,12 +250,14 @@ where \(f_{tt,i}(\sigma_i)\) is a normalizing function.
 
 Smoothness in the season and time-season directions are defined analogously by restricting the derivatives \(\frac{\partial^2}{\partial s^2}\) and \(\frac{\partial^2}{\partial s \partial t}\). It should be noted that the matrices \(\bm{D}_{st}\) and \(\bm{D}_{ss}\) take the cylinder topology into account when calculating proper ``circular'' differences.
 
+Again, by setting the smoothing parameters to zero, some simple special cases are obtained. Setting the variance of the seasonal component in the time-seasonal direction to zero causes the seasonal component to be periodic. By setting both trend and time-seasonal variances to zero we effectively force our model to have a linear trend with seasonal dummies. Setting the variance of the second derivatives of the seasonal component in the time direction to zero alone makes changes in the seasonal component linear over time, but does not preclude the seasonal pattern from changing.
+
 \hypertarget{sec:complex-topology}{%
 \subsection{STR with complex seasonal topology}\label{sec:complex-topology}}
 
 A seasonal two-dimensional surface can have a topology other than a cylinder. Suppose that we are going to model some social behaviour (e.g., electricity demand) during working days and holidays (including weekends). The topology modelling the human behaviour is shown in Figure \ref{fig:topology_pdf}.
 
-\begin{figure}
+\begin{figure}[!hbt]
   \centering
   \centerline{Working day \hspace*{4.5cm} Holiday}
   \includegraphics[width=0.6\textwidth]{topology.pdf}
@@ -451,6 +457,71 @@ For \(g>1\), blocks of \(g\) consecutive observations are selected within each s
 
 In some cases, we have observed decompositions where the seasonal component ``leaks'' into the trend component. This can be prevented by selecting an appropriate value for \(g\). Setting \(g\) equal to the number of observations in seasonal patterns is an effective choice, as it prevents the trend component from absorbing seasonal patterns with periods less than \(g\).
 
+\hypertarget{simulations}{%
+\section{Simulations}\label{simulations}}
+
+To demonstrate that our method estimates the appropriate time series components, we use simulations where we know the true underlying components. We will compare our results against two other decomposition methods that handle multiple seasonal components, STL and TBATS. STL \citep{cleveland1990stl} is a well known decomposition method, and therefore a natural choice to use as a method to compare. The original methodology and implementation was designed for only one seasonal period. However, the implementation in the forecast package for R \citep{Rforecast} will compute an STL decomposition iteratively with multiple seasonal periods. TBATS \citep{delivera2011forecasting} is a forecasting method designed for multiple seasonalities; it provides a decomposition of the time series into components, and so can provide an alternative comparison.
+
+Our simulated daily data consists of four components:
+\begin{equation}
+  \label{STR:many_parts2}
+  y_{t} = T_{t} + \alpha S^{W}_{t} + \beta S^{Y}_{t} + \gamma R_{t} , \quad t=1,\dots,n,
+\end{equation}
+where \(T_{t}\) is a trend, \(S^{W}_{t}\) is a weekly seasonal component, \(S^{Y}_{t}\) is a yearly seasonal component, \(R_{t}\) is the remainder, and \(\alpha\), \(\beta\), and \(\gamma\) are parameters which control the contribution of the components to \(y_{t}\).
+
+We use two data generating processes (DGPs) to simulate data. For the first DGP, we use a quadratic trend function with random coefficients, such that \(T_t^* = N_1(t + n/2(N_2-1))^2\) where \(N_1\) and \(N_2\) are independent N(0,1) random variables. Then \(T_t^*\) is normalized to give \(T_t\) with mean zero and unit variance. The seasonal components consist of five pairs of Fourier terms with random N(0,1) coefficients, which are then also normalized. Because this DGP has deterministic components, we refer to it as the ``Deterministic'' GDP.
+
+For the second ``Stochastic'' DGP, the trend is given by an ARIMA(0,2,0) model with standard normal errors, which is then normalized. The seasonal components are also smooth and obtained using a similar process constrained to be periodic. Specifically, for each seasonal component we start with a vector of iid N(0,1) values of the length of one season, normalized and replicated to be of length \(n\). This is then integrated and normalized twice to make it smooth. So each seasonal component is as smooth as the trend, is centred on zero and is periodic.
+
+Figure \ref{fig:examples} shows examples of simulated time series from each of the two DGPs with \(\alpha=\beta=1\) and \(\gamma=0.25\). We generated 1096 days in each case (one day more than three non-leap years of daily data).
+
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{str_ijds_files/figure-latex/examples-1.pdf}
+\caption{\label{fig:examples}Examples of time series generated by the two DGPs.}
+\end{figure}
+
+For comparison of the three decomposition methods, we use parameter sets \((\alpha, \beta, \gamma) = \{(1, 1, 0.2), (1, 1, 0.4), (1, 1, 0.6)\}\), and create 20 time series for each DGP and parameter set. We apply STR, STL and TBATS to each series and compute RMSE for each component (averaging across all data sets and days). We measure the significance of the differences between the methods using a linear model applied to the squared errors. The results are shown in Table \ref{tab:cbetable}. It is clear that STR significantly outperforms STL and TBATS in estimating all components.
+
+\begin{table}[!ht]
+
+\caption{\label{tab:cbetable}RMSE over 100 simulations for each DGP and value of $\gamma$. Bold values indicate results that are significantly different from the STR values.}
+\centering
+\begin{tabular}[t]{rlrrrr}
+\toprule
+$\gamma$ & Method & Trend RMSE & Weekly RMSE & Yearly RMSE & Remainder RMSE\\
+\midrule
+\addlinespace[0.3em]
+\multicolumn{6}{l}{\textbf{Stochastic DGP}}\\
+\hspace{1em}0.2 & STL & \textbf{0.0808} & \textbf{0.0564} & \textbf{0.1267} & \textbf{0.1525}\\
+\hspace{1em}0.2 & TBATS & \textbf{0.1830} & \textbf{0.0174} & \textbf{0.1767} & \textbf{0.0566}\\
+\hspace{1em}0.2 & STR & 0.0183 & 0.0149 & 0.0475 & 0.0515\\
+\midrule
+\hspace{1em}0.4 & STL & \textbf{0.0798} & \textbf{0.1148} & \textbf{0.2299} & \textbf{0.2659}\\
+\hspace{1em}0.4 & TBATS & \textbf{0.3435} & \textbf{0.0344} & \textbf{0.3310} & \textbf{0.1227}\\
+\hspace{1em}0.4 & STR & 0.0320 & 0.0301 & 0.0778 & 0.0876\\
+\midrule
+\hspace{1em}0.6 & STL & \textbf{0.0846} & \textbf{0.1717} & \textbf{0.3388} & \textbf{0.3884}\\
+\hspace{1em}0.6 & TBATS & \textbf{0.5107} & \textbf{0.0508} & \textbf{0.4983} & \textbf{0.1648}\\
+\hspace{1em}0.6 & STR & 0.0523 & 0.0438 & 0.1136 & 0.1273\\
+\midrule
+\addlinespace[0.3em]
+\multicolumn{6}{l}{\textbf{Deterministic GDP}}\\
+\hspace{1em}0.2 & STL & \textbf{0.1272} & \textbf{0.0575} & \textbf{0.1402} & \textbf{0.1748}\\
+\hspace{1em}0.2 & TBATS & \textbf{0.2304} & \textbf{0.0166} & \textbf{0.2259} & \textbf{0.0803}\\
+\hspace{1em}0.2 & STR & 0.0851 & 0.0147 & 0.1000 & 0.0607\\
+\midrule
+\hspace{1em}0.4 & STL & \textbf{0.1135} & \textbf{0.1147} & \textbf{0.2374} & \textbf{0.2757}\\
+\hspace{1em}0.4 & TBATS & \textbf{0.3393} & \textbf{0.0340} & \textbf{0.3294} & \textbf{0.1153}\\
+\hspace{1em}0.4 & STR & 0.0584 & 0.0306 & 0.0937 & 0.0929\\
+\midrule
+\hspace{1em}0.6 & STL & \textbf{0.1439} & \textbf{0.1714} & \textbf{0.3427} & \textbf{0.4018}\\
+\hspace{1em}0.6 & TBATS & \textbf{0.5444} & \textbf{0.0509} & \textbf{0.5298} & \textbf{0.1709}\\
+\hspace{1em}0.6 & STR & 0.0757 & 0.0436 & 0.1691 & 0.1709\\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \hypertarget{applications}{%
 \section{Applications}\label{applications}}
 
@@ -461,17 +532,17 @@ We will illustrate our proposed method using two data sets. The first is a simpl
 
 The time series shown in the top panel of Figure \ref{fig:supermarket} concerns logarithms of monthly supermarket and grocery store revenue in New South Wales, Australia, from 2000 to 2009.
 
-\begin{figure}[!b]\FIGURE
-{\includegraphics[width=.9\textwidth]{str_ijds_files/figure-latex/supermarket-1.pdf}}
-{\label{fig:supermarket}Supermarket and grocery store log revenue in New South Wales, decomposed with STR. The original data (logged) are shown in the top panel, while the components are shown in the other panels, with 95\% confidence intervals for the trend and season components in blue}
-{}
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{str_ijds_files/figure-latex/supermarket-1.pdf}
+\caption{\label{fig:supermarket}Supermarket and grocery store log revenue in New South Wales, decomposed with STR. The original data (logged) are shown in the top panel, while the components are shown in the other panels, with 95\% confidence intervals for the trend and season components in blue}
 \end{figure}
 
 We apply the model in \eqref{STR:linear_model} to the logged data with no covariates and one seasonal component (\(m_1=12\)), with the smoothing parameters selected using leave-one-out cross-validation. The resulting decomposition is shown in Figure \ref{fig:supermarket}, along with 95\% confidence intervals shown as blue bands. Here, the trend component measures the overall health and size of the economy; the seasonal component allows the study of how human behaviour changes over time; the remainder component allows us to identify unusual features of the data.
 
-We obtained similar results using other decomposition methods applied to the same data including STL \citep{cleveland1990stl} and X-13-ARIMA-SEATS \citep{findley2005some}.
+We obtained similar results using other decomposition methods applied to the same data including STL \citep{cleveland1990stl}, TBATS \citep{delivera2011forecasting} and X-13-ARIMA-SEATS \citep{findley2005some,Dagum2016}. These comparisons are provided in the appendix.
 
-%\FloatBarrier
+\FloatBarrier
 
 \hypertarget{sec:one_more_example}{%
 \subsection{Half-hourly electricity consumption with temperature predictors}\label{sec:one_more_example}}
@@ -482,10 +553,10 @@ For each 30-minute period, we also have the air temperature at the Melbourne wea
 
 This data set has two seasonal patterns. The first pattern is a weekly seasonal pattern (\(m_1=48\times7=336\)) that represents the specific demand features that are attributable to a particular day of the week. The second pattern is a daily seasonal pattern (\(m_2=48\)) with the topology in Figure \ref{fig:topology_pdf}, which allows the model to distinguish between working days and holidays/weekends, and to make transitions between them. The pattern reflects the tendency to have a higher electricity demand during standard working hours and a lower demand at night. It also reflects the tendency to have different demand patterns on working days and holidays/weekends. A longer series would also have an annual seasonal pattern, but with only 115 days, this cannot be distinguished from the trend component.
 
-\begin{figure}\FIGURE
-{\includegraphics[width=.9\textwidth]{str_ijds_files/figure-latex/vic-1.pdf}}
-{\label{fig:vic}Electricity demand in Victoria, decomposed using STR. The original data are plotted in black in the first panel, with the decomposed trend plotted in red. The subsequent panels contain the weekly seasonal pattern; the daily seasonal pattern with complex topology; the effect of temperature in Melbourne, which has a daily seasonal pattern with complex topology; the effect of squared temperatures in Melbourne, which is allowed to vary over time; and the residuals. Grey vertical lines represent the residuals with the largest absolute values.}
-{}
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{str_ijds_files/figure-latex/vic-1.pdf}
+\caption{\label{fig:vic}Electricity demand in Victoria, decomposed using STR. The original data are plotted in black in the first panel, with the decomposed trend plotted in red. The subsequent panels contain the weekly seasonal pattern; the daily seasonal pattern with complex topology; the effect of temperature in Melbourne, which has a daily seasonal pattern with complex topology; the effect of squared temperatures in Melbourne, which is allowed to vary over time; and the residuals. Grey vertical lines represent the residuals with the largest absolute values.}
 \end{figure}
 
 Figure \ref{fig:vic} shows the time series decomposed using STR.
@@ -496,32 +567,41 @@ Thus, the data are represented as the sum of six components: trend, weekly seaso
 
 It is interesting to look carefully at the remainder term, as it will contain evidence of events that affect (or are correlated with) the electricity consumption, but which have not been captured in the model. The ten residuals that are largest in absolute value are shown in Table \ref{tab:outlierstable}, corresponding to the grey vertical lines in Figure \ref{fig:vic}.
 
-\begin{table}\TABLE
-{\label{tab:outlierstable}The ten residuals that are largest in absolute value after an STR decomposition.}
-{\begin{tabular}[t]{rlcr}
+\begin{table}[!bh]
+
+\caption{\label{tab:outlierstable}The ten residuals that are largest in absolute value after an STR decomposition.}
+\centering
+\begin{tabular}[t]{rlcr}
 \toprule
 Date & Day of week & Time period & Residual\\
 \midrule
 3 February 2000 & Thursday & 14:30 -- 15:00 & 687.3\\
+10
 3 February 2000 & Thursday & 15:00 -- 15:30 & 871.3\\
+10
 3 February 2000 & Thursday & 15:30 -- 16:00 & 937.0\\
+10
 3 February 2000 & Thursday & 16:00 -- 16:30 & 767.2\\
+10
 3 February 2000 & Thursday & 16:30 -- 17:00 & 580.4\\
-
+10
 4 February 2000 & Friday & 16:00 -- 16:30 & -569.7\\
+10
 10 February 2000 & Thursday & 14:30 -- 15:00 & -611.4\\
+10
 10 February 2000 & Thursday & 15:00 -- 15:30 & -658.9\\
+10
 10 February 2000 & Thursday & 15:30 -- 16:00 & -695.7\\
+10
 10 February 2000 & Thursday & 16:00 -- 16:30 & -728.5\\
 \bottomrule
-\end{tabular}}
-{}
+\end{tabular}
 \end{table}
 
-\begin{figure}\FIGURE
-{\includegraphics[width=\textwidth]{str_ijds_files/figure-latex/MelTemp-1.pdf}}
-{{\label{fig:MelTemp}The temperature in Melbourne on 1 February 2000, and the following ten days. Ten red lines (two groups of five lines each) mark the times of the outliers. The first group spans 14:30--17:00 on 3 February, while the second group spans 15:30--18:00 on the following day.}}
-{}
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{str_ijds_files/figure-latex/MelTemp-1.pdf}
+\caption{\label{fig:MelTemp}The temperature in Melbourne on 1 February 2000, and the following ten days. Ten red lines (two groups of five lines each) mark the times of the outliers. The first group spans 14:30--17:00 on 3 February, while the second group spans 15:30--18:00 on the following day.}
 \end{figure}
 
 Melbourne is famous for its unstable weather, and the outliers can be explained by unusual weather on those days.
@@ -548,7 +628,7 @@ We can reduce the dimension of the model by using a linear combination of smooth
 \end{equation}
 so that \(\bm\ell = \bm{\Psi}\bm{\nu}\), where \(\bm{\nu}\) contains coefficients to be estimated. Then no difference operators are needed to ensure smoothness. Instead, the value of \(q\) and shape of the basis functions \(\psi_j\) will determine the smoothness.
 
-Similarly, seasonal functional components can be obtained, using Fourier terms for example \citep[reminiscent of][]{de2011forecasting}. This approach leads, with no additional effort, to handling seasonality with a fractional or varying period.
+Similarly, seasonal functional components can be obtained, using Fourier terms for example \citep[reminiscent of][]{delivera2011forecasting}. This approach leads, with no additional effort, to handling seasonality with a fractional or varying period.
 
 \hypertarget{robust-regularization}{%
 \subsection{Robust regularization}\label{robust-regularization}}
@@ -594,6 +674,11 @@ If the remainder term \(R_t\) is autocorrelated, the forecasts can be adjusted t
 
 When the STR model is being used for forecasting, better results will probably be obtained by selecting the smoothing parameters using \(K\)-fold cross-validation where the value of \(g\) should be comparable to the forecasting horizon \(h\) in order to avoid the trend being too flexible.
 
+\hypertarget{feature-engineering}{%
+\subsection{Feature engineering}\label{feature-engineering}}
+
+The STR model provides a way to identify new features in time series data, such as weekly or daily patterns. These can then be used within other algorithms. For example, they could be used to classify time series \citep{catch22}, to find anomalous time series (as distinct from anomalous observations) \citep{cikm2015}, to select a forecasting model \citep{fforms}, or to create a weighted forecast combination \citep{fforma}.
+
 \hypertarget{other-applications}{%
 \subsection{Other applications}\label{other-applications}}
 
@@ -636,7 +721,6 @@ This paper was produced using Rmarkdown \citep{rmarkdown}. The source files to r
 %\input{mypaper.bbl} % outcomment this line in Case 2
 
 %If you don't use BiBTex, you can manually itemize references as shown below.
-
 
 
 \end{document}
