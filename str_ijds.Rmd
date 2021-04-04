@@ -386,7 +386,7 @@ bind_rows(
 ```
 
 
-For comparison of the three decomposition methods, we use parameter sets $(\alpha, \beta, \gamma) = \{(1, 1, 0.2), (1, 1, 0.4), (1, 1, 0.6)\}$, and create 20 time series for each DGP and parameter set. We apply STR, STL and TBATS to each series and compute RMSE for each component (averaging across all data sets and days). We measure the significance of the differences between the methods using a linear model applied to the squared errors. The results are shown in Table \@ref(tab:cbetable). It is clear that STR outperforms STL in estimating all components other than the trend, and that STR outperforms TBATS in estimating all components other than the weekly seasonal pattern. In no case do the other methods outperform STR.
+For comparison of the three decomposition methods, we use parameter sets $(\alpha, \beta, \gamma) = \{(1, 1, 0.2), (1, 1, 0.4), (1, 1, 0.6)\}$, and create 20 time series for each DGP and parameter set. We apply STR, STL and TBATS to each series and compute RMSE for each component (averaging across all data sets and days). We measure the significance of the differences between the methods using a linear model applied to the squared errors. The results are shown in Table \@ref(tab:cbetable). It is clear that STR significantly outperforms STL and TBATS in estimating all components.
 
 ```{r errors}
 if(fs::file_exists(here::here("errors.rds"))) {
